@@ -479,7 +479,8 @@ function renderClientes(){
       <div class="row" style="border-bottom:none; padding-bottom:0;">
         <div>
           <div class="name">${escapeHtml(c.nome)}</div>
-          <div class="meta">${escapeHtml(c.negocio||'—')} ${c.contacto? '· '+escapeHtml(c.contacto):<''}
+          <div class="meta">${escapeHtml(c.negocio||'—')} ${c.contacto? '· '+escapeHtml(c.contacto):
+''}</div>
         </div>
         <span class="badge ${c.estado}">${c.estado}</span>
       </div>
@@ -518,15 +519,15 @@ function renderOrcamentoForm(){
   sel.onchange = ()=>{ orcState.clienteId = sel.value; };
 
   const sChips = document.getElementById('servico-chips');
-  sChips.innerHTML = SERVICOS.map(s=>`<button class="chip ${s.id===orcState.servico?'active':''} data-id="${s.id}">${s.nome}</button>`).join('');
+  sChips.innerHTML = SERVICOS.map(s=>`<button class="chip ${s.id===orcState.servico?'active':''} " data-id="${s.id}">${s.nome}</button>`).join('');
   sChips.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{ orcState.servico=b.dataset.id; renderOrcamentoForm(); });
 
   const pChips = document.getElementById('prazo-chips');
-  pChips.innerHTML = PRAZOS.map(p=>`<button class="chip ${p.id===orcState.prazo?'active':''} data-id="${p.id}">${p.nome}</button>`).join('');
+  pChips.innerHTML = PRAZOS.map(p=>`<button class="chip ${p.id===orcState.prazo?'active':''} " data-id="${p.id}">${p.nome}</button>`).join('');
   pChips.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{ orcState.prazo=b.dataset.id; renderOrcamentoForm(); });
 
   const cChips = document.getElementById('complex-chips');
-  cChips.innerHTML = COMPLEX.map(c=>`<button class="chip ${c.id===orcState.complex?'active':''} data-id="${c.id}">${c.nome}</button>`).join('');
+  cChips.innerHTML = COMPLEX.map(c=>`<button class="chip ${c.id===orcState.complex?'active':''} " data-id="${c.id}">${c.nome}</button>`).join('');
   cChips.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{ orcState.complex=b.dataset.id; renderOrcamentoForm(); });
 
   document.getElementById('or-qtd').onchange = (e)=>{ recalcTotal(); };
