@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>GAG Visual — Gestão</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2B2118">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GAG Visual">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2B2118;
+    --ink-2:#3D2F22;
+    --terra:#8B5E3C;
+    --terra-dim:#6b4830;
+    --ochre:#C9A24B;
+    --sand:#EDE3D0;
+    --white:#FFFFFF;
+    --gray:#8C7E6A;
+    --danger:#A33B2E;
+    --success:#5C7A5A;
+    --radius:10px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0; font-family:'Work Sans',-apple-system,sans-serif;
+    background:var(--sand); color:var(--ink);
+    padding-bottom:84px;
+  }
+  h1,h2,h3{font-family:'Fraunces',Georgia,serif; margin:0;}
+  header{
+    background:var(--ink); color:var(--white);
+    padding:22px 18px 20px; position:relative; overflow:hidden;
+  }
+  header::after{
+    content:""; position:absolute; inset:0; opacity:.10; pointer-events:none;
+    background-image:
+      linear-gradient(135deg, var(--ochre) 25%, transparent 25%, transparent 50%, var(--ochre) 50%, var(--ochre) 75%, transparent 75%, transparent);
+    background-size:22px 22px;
+  }
+  header .brand{display:flex; align-items:center; gap:12px; position:relative; z-index:1;}
+  header .seal{
+    width:42px; height:42px; position:relative;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  header .seal::before{
+    content:""; position:absolute; inset:0;
+    background:var(--ochre); clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+  header .seal span{
+    position:relative; z-index:1; font-family:'Fraunces',serif; font-weight:700; color:var(--ink); font-size:14px; letter-spacing:.5px;
+  }
+  header h1{font-size:21px; letter-spacing:.3px; font-weight:700;}
+  header p{margin:3px 0 0; font-size:11.5px; color:var(--ochre); letter-spacing:1.2px; text-transform:uppercase;}
+
+  nav{
+    display:flex; position:fixed; bottom:0; left:0; right:0;
+    background:var(--ink); border-top:1px solid var(--ink-2);
+    z-index:50;
+  }
+  nav button{
+    flex:1; background:none; border:none; color:var(--gray);
+    padding:11px 2px 9px; font-size:10.5px; font-family:'Work Sans',sans-serif;
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+  }
+  nav button .ic{font-size:18px;}
+  nav button.active{color:var(--ochre);}
+
+  main{padding:16px;}
+  .screen{display:none;}
+  .screen.active{display:block; animation:fade .2s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+  .card{
+    background:var(--white); border-radius:var(--radius);
+    padding:16px; margin-bottom:14px; box-shadow:0 1px 3px rgba(14,30,47,.08);
+    border:1px solid #E5D9C3;
+  }
+  .card h3{font-size:15px; margin-bottom:10px; color:var(--ink);}
+  label{display:block; font-size:12px; color:var(--gray); margin:10px 0 4px; font-weight:700; text-transform:uppercase; letter-spacing:.4px;}
+  input, select, textarea{
+    width:100%; padding:11px 12px; border:1.5px solid #E0D4BE; border-radius:8px;
+    font-size:15px; font-family:'Work Sans',sans-serif; background:var(--white); color:var(--ink);
+  }
+  input:focus, select:focus, textarea:focus{outline:none; border-color:var(--ochre);}
+  textarea{resize:vertical; min-height:70px;}
+
+  .btn{
+    display:block; width:100%; text-align:center; padding:13px;
+    border-radius:8px; border:none; font-size:15px; font-weight:700;
+    font-family:'Work Sans',sans-serif; cursor:pointer; margin-top:14px;
+  }
+  .btn-primary{background:var(--ochre); color:var(--ink);}
+  .btn-secondary{background:var(--ink); color:var(--white);}
+  .btn-ghost{background:none; border:1.5px solid var(--ink); color:var(--ink);}
+  .btn-danger{background:none; color:var(--danger); border:1.5px solid var(--danger);}
+  .btn-row{display:flex; gap:8px; margin-top:14px;}
+  .btn-row .btn{margin-top:0;}
+
+  .row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #E5D9C3;}
+  .row:last-child{border-bottom:none;}
+  .row .name{font-weight:700; font-size:14px;}
+  .row .meta{font-size:12px; color:var(--gray);}
+  .row .val{font-weight:700; color:var(--ink); font-size:14px;}
+  .badge{font-size:10px; padding:2px 8px; border-radius:20px; font-weight:700; text-transform:uppercase;}
+  .badge.lead{background:#E5D9C3; color:var(--gray);}
+  .badge.cliente{background:#E4EAE0; color:var(--success);}
+  .badge.pago{background:#E4EAE0; color:var(--success);}
+  .badge.pendente{background:#F0E0BE; color:#7A5418;}
+
+  .empty{text-align:center; padding:40px 16px; color:var(--gray);}
+  .empty .ic{font-size:36px; display:block; margin-bottom:8px;}
+
+  .total-box{
+    background:var(--ink); color:var(--white); border-radius:8px;
+    padding:16px; margin-top:14px; text-align:center;
+  }
+  .total-box .lbl{font-size:11px; color:var(--ochre); text-transform:uppercase; letter-spacing:1px;}
+  .total-box .amt{font-family:'Fraunces',serif; font-size:28px; margin-top:4px;}
+
+  .tabs{display:flex; gap:6px; margin-bottom:14px;}
+  .tabs button{
+    flex:1; padding:9px 4px; border-radius:8px; border:1.5px solid #E0D4BE;
+    background:var(--white); color:var(--ink); font-size:12.5px; font-weight:700; font-family:'Work Sans',sans-serif;
+  }
+  .tabs button.active{background:var(--ink); color:var(--ochre); border-color:var(--ink);}
+
+  .doc-preview{
+    background:var(--white); border:1px solid #E0D4BE; border-radius:8px;
+    padding:18px; font-size:13px; position:relative;
+  }
+  .doc-preview .docseal{
+    position:absolute; top:14px; right:14px; width:68px; height:68px;
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    transform:rotate(-8deg); color:var(--terra-dim); font-weight:700; font-size:8.5px;
+    font-family:'Fraunces',serif; letter-spacing:.5px; line-height:1.25;
+  }
+  .doc-preview .docseal::before{
+    content:""; position:absolute; inset:0;
+    border:2px solid var(--ochre);
+    clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+  .doc-preview .docseal span{position:relative; z-index:1;}
+  .doc-preview h2{font-size:16px; color:var(--ink);}
+  .doc-preview .docnum{font-size:11px; color:var(--gray); margin-top:2px;}
+  .doc-preview hr{border:none; border-top:1px solid #E5D9C3; margin:12px 0;}
+  .doc-preview .drow{display:flex; justify-content:space-between; padding:4px 0; font-size:13px;}
+  .doc-preview .dtotal{display:flex; justify-content:space-between; padding-top:10px; margin-top:6px; border-top:2px solid var(--ink); font-weight:700; font-size:15px;}
+
+  .msg-card{background:var(--white); border-radius:8px; padding:12px; margin-bottom:10px; border:1px solid #E5D9C3;}
+  .msg-card .msg-title{font-weight:700; font-size:13px; margin-bottom:6px; color:var(--ink);}
+  .msg-card pre{
+    white-space:pre-wrap; font-family:'Work Sans',sans-serif; font-size:13px; color:var(--ink-2);
+    background:var(--sand); padding:10px; border-radius:6px; margin:0 0 8px;
+  }
+  .copy-btn{
+    background:var(--ink); color:var(--ochre); border:none; padding:8px 14px;
+    border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;
+  }
+  .copy-btn.copied{background:var(--success); color:var(--white);}
+
+  .toast{
+    position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+    background:var(--ink); color:var(--white); padding:10px 18px; border-radius:30px;
+    font-size:13px; z-index:100; opacity:0; transition:opacity .25s; pointer-events:none;
+  }
+  .toast.show{opacity:1;}
+
+  .fab-add{
+    position:fixed; right:16px; bottom:96px; width:50px; height:50px; border-radius:50%;
+    background:var(--ochre); color:var(--ink); border:none; font-size:24px; font-weight:700;
+    box-shadow:0 3px 8px rgba(14,30,47,.3); z-index:40;
+  }
+  .section-title{font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--gray); margin:18px 0 8px; font-weight:700;}
+  .section-title:first-child{margin-top:0;}
+  .chip-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;}
+  .chip{
+    padding:7px 12px; border-radius:20px; background:var(--white); border:1.5px solid #E0D4BE;
+    font-size:12.5px; font-weight:700; color:var(--ink);
+  }
+  .chip.active{background:var(--ochre); border-color:var(--ochre); color:var(--ink);}
+  .helper{font-size:11.5px; color:var(--gray); margin-top:4px;}
+  .summary-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;}
+  .stat{background:var(--white); border-radius:8px; padding:14px; text-align:center; border:1px solid #E5D9C3;}
+  .stat .num{font-family:'Fraunces',serif; font-size:22px; color:var(--ink);}
+  .stat .lbl{font-size:11px; color:var(--gray); text-transform:uppercase; margin-top:2px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="seal"><span>GV</span></div>
+    <div>
+      <h1>GAG Visual</h1>
+      <p>Gestão &amp; Orçamentos</p>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- HOME -->
+  <section class="screen active" id="screen-home">
+    <div class="summary-grid">
+      <div class="stat"><div class="num" id="stat-clientes">0</div><div class="lbl">Contactos</div></div>
+      <div class="stat"><div class="num" id="stat-pendente">0</div><div class="lbl">Kz pendentes</div></div>
+    </div>
+    <div class="card">
+      <h3>Acesso rápido</h3>
+      <button class="btn btn-primary" onclick="goTo('orcamento')">Gerar novo orçamento</button>
+      <button class="btn btn-secondary" onclick="goTo('mensagens')">Mensagens prontas</button>
+      <button class="btn btn-ghost" onclick="goTo('clientes')">Ver contactos</button>
+    </div>
+    <div class="card">
+      <h3>Tabela de preços</h3>
+      <div id="price-list"></div>
+    </div>
+    <div class="card">
+      <h3>Dados</h3>
+      <p class="helper">Os teus contactos e orçamentos ficam guardados neste telemóvel, mesmo depois de fechar a página.</p>
+      <button class="btn btn-secondary" id="install-btn" style="display:none;" onclick="instalarApp()">Instalar app no telemóvel</button>
+      <button class="btn btn-danger" onclick="confirmarLimpeza()">Apagar todos os dados</button>
+    </div>
+  </section>
+
+  <!-- CLIENTES -->
+  <section class="screen" id="screen-clientes">
+    <h2 style="margin-bottom:12px;">Contactos</h2>
+    <div id="clientes-list"></div>
+    <button class="fab-add" onclick="openClienteForm()">+</button>
+  </section>
+
+  <section class="screen" id="screen-cliente-form">
+    <h2 style="margin-bottom:12px;">Novo contacto</h2>
+    <div class="card">
+      <label>Nome</label>
+      <input id="cf-nome" placeholder="Nome da pessoa ou negócio">
+      <label>Negócio / tipo</label>
+      <input id="cf-negocio" placeholder="Ex: Padaria, Salão, Loja">
+      <label>Contacto (WhatsApp)</label>
+      <input id="cf-contacto" placeholder="9XX XXX XXX">
+      <label>Estado</label>
+      <select id="cf-estado">
+        <option value="lead">Lead (contacto a fazer)</option>
+        <option value="cliente">Cliente</option>
+      </select>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goTo('clientes')">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveCliente()">Guardar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ORÇAMENTO -->
+  <section class="screen" id="screen-orcamento">
+    <h2 style="margin-bottom:12px;">Gerar orçamento</h2>
+    <div class="card">
+      <label>Cliente</label>
+      <select id="or-cliente"><option value="">— Sem cliente associado —</option></select>
+
+      <div class="section-title">Serviço</div>
+      <div class="chip-row" id="servico-chips"></div>
+
+      <label>Quantidade</label>
+      <input id="or-qtd" type="number" value="1" min="1">
+
+      <div class="section-title">Prazo</div>
+      <div class="chip-row" id="prazo-chips"></div>
+
+      <div class="section-title">Complexidade</div>
+      <div class="chip-row" id="complex-chips"></div>
+
+      <div class="total-box">
+        <div class="lbl">Total estimado</div>
+        <div class="amt" id="or-total">Kz 0</div>
+      </div>
+
+      <button class="btn btn-primary" onclick="confirmarOrcamento()">Confirmar e guardar</button>
+    </div>
+  </section>
+
+  <!-- ORÇAMENTOS LISTA -->
+  <section class="screen" id="screen-orcamentos-lista">
+    <h2 style="margin-bottom:12px;">Orçamentos</h2>
+    <div id="orcamentos-list"></div>
+  </section>
+
+  <!-- DOCUMENTO (recibo/fatura) -->
+  <section class="screen" id="screen-doc">
+    <h2 style="margin-bottom:12px;">Documento</h2>
+    <div class="tabs">
+      <button id="tab-fatura" class="active" onclick="setDocType('fatura')">Factura</button>
+      <button id="tab-recibo" onclick="setDocType('recibo')">Recibo</button>
+    </div>
+    <div class="doc-preview" id="doc-preview"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="copiarDocumento()">Copiar texto</button>
+      <button class="btn btn-primary" onclick="marcarPago()">Marcar pago</button>
+    </div>
+    <button class="btn btn-secondary" style="background:var(--ochre); color:var(--ink);" onclick="enviarDocPorWhatsapp()">Enviar por WhatsApp</button>
+    <button class="btn btn-ghost" onclick="goTo('orcamentos-lista')">Voltar</button>
+  </section>
+
+  <!-- MENSAGENS -->
+  <section class="screen" id="screen-mensagens">
+    <h2 style="margin-bottom:8px;">Mensagens prontas</h2>
+    <div id="mensagens-banner"></div>
+    <p class="helper" style="margin-bottom:12px;">Copia e cola no WhatsApp, ou usa "Abrir no WhatsApp" para enviar direto. Substitui [Nome] pelo nome da pessoa antes de enviar.</p>
+    <div id="mensagens-list"></div>
+  </section>
+
+</main>
+
+<button class="" id="dummy" style="display:none;"></button>
+
+<nav>
+  <button class="nav-btn active" data-screen="home" onclick="goTo('home')"><span class="ic">⌂</span>Início</button>
+  <button class="nav-btn" data-screen="clientes" onclick="goTo('clientes')"><span class="ic">☷</span>Contactos</button>
+  <button class="nav-btn" data-screen="orcamento" onclick="goTo('orcamento')"><span class="ic">Kz</span>Orçamento</button>
+  <button class="nav-btn" data-screen="orcamentos-lista" onclick="goTo('orcamentos-lista')"><span class="ic">▤</span>Histórico</button>
+  <button class="nav-btn" data-screen="mensagens" onclick="goTo('mensagens')"><span class="ic">✉</span>Mensagens</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== DADOS BASE ===================== */
+const SERVICOS = [
+  {id:'flyer', nome:'Flyer Comercial', preco:2500},
+  {id:'logo', nome:'Logótipo Profissional', preco:5000},
+  {id:'convite', nome:'Convite Digital', preco:2000},
+  {id:'cv', nome:'CV Profissional', preco:2000},
+  {id:'video', nome:'Vídeo Curto Institucional', preco:3000},
+  {id:'redes', nome:'Gestão de Redes Sociais (mês)', preco:15000},
+];
+const PRAZOS = [
+  {id:'flex', nome:'Flexível (7+ dias)', mult:0.9},
+  {id:'normal', nome:'Normal (3-7 dias)', mult:1.0},
+  {id:'urgente', nome:'Urgente (24-48h)', mult:1.5},
+];
+const COMPLEX = [
+  {id:'simples', nome:'Simples', mult:1.0},
+  {id:'media', nome:'Média', mult:1.3},
+  {id:'complexa', nome:'Complexa', mult:1.6},
+];
+
+const MENSAGENS = [
+  {titulo:'Apresentação geral', texto:`Olá [Nome], tudo bem?\n\nChamo-me Josemar e trabalho com a GAG Visual, criando flyers, logótipos e identidade visual para negócios aqui no Kilamba.\n\nSe conhece alguém com um negócio que precise de melhorar a imagem (padaria, salão, loja, restaurante), ficava agradecido se passasse o meu contacto. Tenho exemplos do trabalho para mostrar.\n\nObrigado!`},
+  {titulo:'Para padaria / restaurante', texto:`Olá [Nome]! Vi o seu negócio e penso que um flyer profissional podia ajudar a atrair mais clientes.\n\nFaço flyers comerciais a partir de Kz 2.500, com entrega em poucos dias. Posso mostrar alguns exemplos do meu trabalho. Tem interesse?`},
+  {titulo:'Para salão / loja', texto:`Olá [Nome], como está?\n\nTrabalho com identidade visual — logótipos, flyers e cartões — para pequenos negócios como o seu. Um logótipo profissional fica a partir de Kz 5.000.\n\nPosso enviar exemplos do meu trabalho para ver se gosta do estilo?`},
+  {titulo:'Resposta a "quanto custa"', texto:`Os meus preços base são:\n\n• Flyer Comercial — Kz 2.500\n• Logótipo Profissional — Kz 5.000\n• Convite Digital — Kz 2.000\n• CV Profissional — Kz 2.000\n\nO valor final depende do prazo e da complexidade. Quer que eu calcule um orçamento exacto para o que precisa?`},
+  {titulo:'Resposta a "não tenho dinheiro agora"', texto:`Sem problema! Quando estiver pronto, estou disponível. Se quiser, posso guardar o seu contacto e enviar uma mensagem quando tiver uma promoção ou disponibilidade especial. Obrigado pelo interesse!`},
+  {titulo:'Follow-up (sem resposta há dias)', texto:`Olá [Nome], só a confirmar se viu a minha mensagem anterior sobre os serviços de design. Continuo disponível se precisar de flyer, logótipo ou outro material para o seu negócio.`},
+];
+
+/* ===================== ESTADO (persistente) ===================== */
+let clientes = [];
+let orcamentos = [];
+let nextClienteId = 1;
+let nextOrcId = 1;
+
+let orcState = { clienteId:'', servico:'flyer', prazo:'normal', complex:'simples' };
+let docState = { orcId:null, tipo:'fatura' };
+
+const STORAGE_KEY = 'gagvisual-dados';
+
+function salvarDados(){
+  try{
+    const payload = { clientes, orcamentos, nextClienteId, nextOrcId };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  }catch(err){
+    console.error('Erro ao guardar:', err);
+    showToast('Erro ao guardar dados.');
+  }
+}
+
+function carregarDados(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const payload = JSON.parse(raw);
+      clientes = payload.clientes || [];
+      orcamentos = payload.orcamentos || [];
+      nextClienteId = payload.nextClienteId || 1;
+      nextOrcId = payload.nextOrcId || 1;
+    }
+  }catch(err){
+    console.log('Sem dados guardados ainda ou erro a ler:', err);
+  }
+  renderHome();
+}
+
+/* ===================== NAVEGAÇÃO ===================== */
+function goTo(screen){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const map = {
+    home:'screen-home', clientes:'screen-clientes', 'cliente-form':'screen-cliente-form',
+    orcamento:'screen-orcamento', 'orcamentos-lista':'screen-orcamentos-lista',
+    doc:'screen-doc', mensagens:'screen-mensagens'
+  };
+  document.getElementById(map[screen]).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const navBtn = document.querySelector(`.nav-btn[data-screen="${screen}"]`);
+  if(navBtn) navBtn.classList.add('active');
+
+  if(screen==='home') renderHome();
+  if(screen==='clientes') renderClientes();
+  if(screen==='orcamento') renderOrcamentoForm();
+  if(screen==='orcamentos-lista') renderOrcamentosList();
+  if(screen==='mensagens') renderMensagens();
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+function fmtKz(n){
+  return 'Kz ' + Math.round(n).toLocaleString('pt-PT');
+}
+
+/* ===================== HOME ===================== */
+function renderHome(){
+  document.getElementById('stat-clientes').textContent = clientes.length;
+  const pendente = orcamentos.filter(o=>o.status!=='pago').reduce((s,o)=>s+o.total,0);
+  document.getElementById('stat-pendente').textContent = pendente.toLocaleString('pt-PT');
+
+  const list = document.getElementById('price-list');
+  list.innerHTML = SERVICOS.map(s=>`
+    <div class="row">
+      <div><div class="name">${s.nome}</div></div>
+      <div class="val">${fmtKz(s.preco)}</div>
+    </div>
+  `).join('');
+}
+
+/* ===================== CLIENTES ===================== */
+function openClienteForm(){
+  document.getElementById('cf-nome').value='';
+  document.getElementById('cf-negocio').value='';
+  document.getElementById('cf-contacto').value='';
+  document.getElementById('cf-estado').value='lead';
+  goTo('cliente-form');
+}
+
+function saveCliente(){
+  const nome = document.getElementById('cf-nome').value.trim();
+  if(!nome){ showToast('Insere o nome.'); return; }
+  clientes.push({
+    id: nextClienteId++,
+    nome,
+    negocio: document.getElementById('cf-negocio').value.trim(),
+    contacto: document.getElementById('cf-contacto').value.trim(),
+    estado: document.getElementById('cf-estado').value
+  });
+  salvarDados();
+  showToast('Contacto guardado.');
+  goTo('clientes');
+}
+
+function renderClientes(){
+  const list = document.getElementById('clientes-list');
+  if(clientes.length===0){
+    list.innerHTML = `<div class="empty"><span class="ic">☷</span>Ainda não tens contactos guardados.<br>Toca em "+" para adicionar o primeiro.</div>`;
+    return;
+  }
+  list.innerHTML = clientes.map(c=>`
+    <div class="card" style="margin-bottom:10px;">
+      <div class="row" style="border-bottom:none; padding-bottom:0;">
+        <div>
+          <div class="name">${escapeHtml(c.nome)}</div>
+          <div class="meta">${escapeHtml(c.negocio||'—')} ${c.contacto? '· '+escapeHtml(c.contacto):<''}
+        </div>
+        <span class="badge ${c.estado}">${c.estado}</span>
+      </div>
+      ${c.contacto ? `<button class="btn btn-secondary" style="margin-top:10px;" onclick="abrirWhatsappParaCliente(${c.id})">Enviar mensagem no WhatsApp</button>` : `<p class="helper" style="margin-top:8px;">Sem número guardado — edita o contacto para adicionar.</p>`}
+    </div>
+  `).join('');
+}
+
+function limparNumero(numero){
+  // remove espaços, parênteses, traços; assume Angola (+244) se vier sem código de país
+  let n = (numero||'').replace(/[^\d+]/g, '');
+  if(n.startsWith('+')) return n.replace('+','');
+  if(n.startsWith('244')) return n;
+  if(n.startsWith('0')) n = n.substring(1);
+  return '244' + n;
+}
+
+let pendingWhatsappClienteId = null;
+
+function abrirWhatsappParaCliente(clienteId){
+  pendingWhatsappClienteId = clienteId;
+  goTo('mensagens');
+  showToast('Escolhe a mensagem para enviar.');
+}
+
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+/* ===================== ORÇAMENTO ===================== */
+function renderOrcamentoForm(){
+  const sel = document.getElementById('or-cliente');
+  sel.innerHTML = '<option value="">— Sem cliente associado —</option>' +
+    clientes.map(c=>`<option value="${c.id}">${escapeHtml(c.nome)}</option>`).join('');
+  sel.value = orcState.clienteId;
+  sel.onchange = ()=>{ orcState.clienteId = sel.value; };
+
+  const sChips = document.getElementById('servico-chips');
+  sChips.innerHTML = SERVICOS.map(s=>`<button class="chip ${s.id===orcState.servico?'active':''} data-id="${s.id}">${s.nome}</button>`).join('');
+  sChips.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{ orcState.servico=b.dataset.id; renderOrcamentoForm(); });
+
+  const pChips = document.getElementById('prazo-chips');
+  pChips.innerHTML = PRAZOS.map(p=>`<button class="chip ${p.id===orcState.prazo?'active':''} data-id="${p.id}">${p.nome}</button>`).join('');
+  pChips.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{ orcState.prazo=b.dataset.id; renderOrcamentoForm(); });
+
+  const cChips = document.getElementById('complex-chips');
+  cChips.innerHTML = COMPLEX.map(c=>`<button class="chip ${c.id===orcState.complex?'active':''} data-id="${c.id}">${c.nome}</button>`).join('');
+  cChips.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{ orcState.complex=b.dataset.id; renderOrcamentoForm(); });
+
+  document.getElementById('or-qtd').onchange = (e)=>{ recalcTotal(); };
+  document.getElementById('or-qtd').oninput = (e)=>{ recalcTotal(); };
+
+  recalcTotal();
+}
+
+function recalcTotal(){
+  const servico = SERVICOS.find(s=>s.id===orcState.servico);
+  const prazo = PRAZOS.find(p=>p.id===orcState.prazo);
+  const complex = COMPLEX.find(c=>c.id===orcState.complex);
+  const qtd = parseInt(document.getElementById('or-qtd').value)||1;
+  const total = servico.preco * prazo.mult * complex.mult * qtd;
+  document.getElementById('or-total').textContent = fmtKz(total);
+  return total;
+}
+
+function confirmarOrcamento(){
+  const total = recalcTotal();
+  const servico = SERVICOS.find(s=>s.id===orcState.servico);
+  const prazo = PRAZOS.find(p=>p.id===orcState.prazo);
+  const complex = COMPLEX.find(c=>c.id===orcState.complex);
+  const qtd = parseInt(document.getElementById('or-qtd').value)||1;
+  const cliente = clientes.find(c=>c.id==orcState.clienteId);
+
+  const orc = {
+    id: nextOrcId++,
+    clienteId: orcState.clienteId || null,
+    clienteNome: cliente ? cliente.nome : 'Cliente avulso',
+    servico: servico.nome,
+    qtd, prazo: prazo.nome, complex: complex.nome,
+    total, status:'pendente',
+    data: new Date().toLocaleDateString('pt-PT')
+  };
+  orcamentos.push(orc);
+  salvarDados();
+  showToast('Orçamento guardado.');
+  goTo('orcamentos-lista');
+}
+
+function renderOrcamentosList(){
+  const list = document.getElementById('orcamentos-list');
+  if(orcamentos.length===0){
+    list.innerHTML = `<div class="empty"><span class="ic">▤</span>Ainda não geraste nenhum orçamento.</div>`;
+    return;
+  }
+  list.innerHTML = orcamentos.slice().reverse().map(o=>`
+    <div class="card" style="margin-bottom:10px; cursor:pointer;" onclick="abrirDoc(${o.id})">
+      <div class="row" style="border-bottom:none; padding-bottom:0;">
+        <div>
+          <div class="name">${escapeHtml(o.clienteNome)}</div>
+          <div class="meta">${escapeHtml(o.servico)} · ${o.data}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="val">${fmtKz(o.total)}</div>
+          <span class="badge ${o.status==='pago'?'pago':'pendente'}">${o.status}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ===================== DOCUMENTO (FATURA/RECIBO) ===================== */
+function abrirDoc(orcId){
+  docState.orcId = orcId;
+  docState.tipo = 'fatura';
+  goTo('doc');
+}
+
+function setDocType(tipo){
+  docState.tipo = tipo;
+  document.getElementById('tab-fatura').classList.toggle('active', tipo==='fatura');
+  document.getElementById('tab-recibo').classList.toggle('active', tipo==='recibo');
+  renderDoc();
+}
+
+function renderDoc(){
+  const o = orcamentos.find(x=>x.id===docState.orcId);
+  if(!o) return;
+  const tipoLabel = docState.tipo==='fatura' ? 'FACTURA' : 'RECIBO';
+  const numero = `${docState.tipo==='fatura'?'FT':'RC'}-${String(o.id).padStart(4,'0')}`;
+
+  document.getElementById('doc-preview').innerHTML = `
+    <div class="docseal"><span>GAG<br>VISUAL<br>★</span></div>
+    <h2>GAG VISUAL</h2>
+    <div class="docnum">${tipoLabel} Nº ${numero} — ${o.data}</div>
+    <hr>
+    <div class="drow"><span>Cliente</span><span>${escapeHtml(o.clienteNome)}</span></div>
+    <div class="drow"><span>Serviço</span><span>${escapeHtml(o.servico)}</span></div>
+    <div class="drow"><span>Quantidade</span><span>${o.qtd}</span></div>
+    <div class="drow"><span>Prazo</span><span>${escapeHtml(o.prazo)}</span></div>
+    <div class="drow"><span>Complexidade</span><span>${escapeHtml(o.complex)}</span></div>
+    <div class="dtotal"><span>Total</span><span>${fmtKz(o.total)}</span></div>
+    ${docState.tipo==='recibo' ? `<p style="margin-top:14px; font-size:12px; color:var(--gray);">Confirmamos a recepção do pagamento acima referente ao serviço prestado pela GAG Visual.</p>` : `<p style="margin-top:14px; font-size:12px; color:var(--gray);">Pagamento via transferência ou Multicaixa Express. Obrigado pela confiança.</p>`}
+  `;
+}
+
+function copiarDocumento(){
+  const o = orcamentos.find(x=>x.id===docState.orcId);
+  if(!o) return;
+  const tipoLabel = docState.tipo==='fatura' ? 'FACTURA' : 'RECIBO';
+  const numero = `${docState.tipo==='fatura'?'FT':'RC'}-${String(o.id).padStart(4,'0')}`;
+  const texto = `GAG VISUAL\n${tipoLabel} Nº ${numero} — ${o.data}\n\nCliente: ${o.clienteNome}\nServiço: ${o.servico}\nQuantidade: ${o.qtd}\nPrazo: ${o.prazo}\nComplexidade: ${o.complex}\n\nTOTAL: ${fmtKz(o.total)}\n\n${docState.tipo==='recibo' ? 'Confirmamos a recepção do pagamento referente ao serviço prestado pela GAG Visual.' : 'Pagamento via transferência ou Multicaixa Express. Obrigado pela confiança.'}`;
+
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(texto).then(()=>showToast('Texto copiado!'));
+  } else {
+    showToast('Não foi possível copiar automaticamente.');
+  }
+}
+
+function marcarPago(){
+  const o = orcamentos.find(x=>x.id===docState.orcId);
+  if(!o) return;
+  o.status = 'pago';
+  salvarDados();
+  showToast('Marcado como pago.');
+  renderOrcamentosList();
+}
+
+function enviarDocPorWhatsapp(){
+  const o = orcamentos.find(x=>x.id===docState.orcId);
+  if(!o) return;
+  const tipoLabel = docState.tipo==='fatura' ? 'FACTURA' : 'RECIBO';
+  const numero = `${docState.tipo==='fatura'?'FT':'RC'}-${String(o.id).padStart(4,'0')}`;
+  const texto = `GAG VISUAL\n${tipoLabel} Nº ${numero} — ${o.data}\n\nCliente: ${o.clienteNome}\nServiço: ${o.servico}\nQuantidade: ${o.qtd}\nPrazo: ${o.prazo}\nComplexidade: ${o.complex}\n\nTOTAL: ${fmtKz(o.total)}\n\n${docState.tipo==='recibo' ? 'Confirmamos a recepção do pagamento referente ao serviço prestado pela GAG Visual.' : 'Pagamento via transferência ou Multicaixa Express. Obrigado pela confiança.'}`;
+  const encoded = encodeURIComponent(texto);
+
+  const cliente = clientes.find(c=>c.id===o.clienteId);
+  if(cliente && cliente.contacto){
+    const num = limparNumero(cliente.contacto);
+    window.open(`https://wa.me/${num}?text=${encoded}`, '_blank');
+  } else {
+    window.open(`https://wa.me/?text=${encoded}`, '_blank');
+  }
+}
+
+/* ===================== MENSAGENS ===================== */
+function renderMensagens(){
+  const banner = document.getElementById('mensagens-banner');
+  const clienteSel = pendingWhatsappClienteId ? clientes.find(c=>c.id===pendingWhatsappClienteId) : null;
+  if(clienteSel){
+    banner.innerHTML = `<div class="card" style="margin-bottom:12px; padding:12px;">
+      <div class="row" style="border-bottom:none; padding:0;">
+        <div><div class="name" style="font-size:13px;">Enviar para: ${escapeHtml(clienteSel.nome)}</div></div>
+        <button class="copy-btn" onclick="limparSelecaoWhatsapp()">Cancelar</button>
+      </div>
+    </div>`;
+  } else {
+    banner.innerHTML = '';
+  }
+
+  const list = document.getElementById('mensagens-list');
+  list.innerHTML = MENSAGENS.map((m,i)=>`
+    <div class="msg-card">
+      <div class="msg-title">${escapeHtml(m.titulo)}</div>
+      <pre id="msg-${i}">${escapeHtml(m.texto)}</pre>
+      <div class="btn-row" style="margin-top:0;">
+        <button class="copy-btn" onclick="copiarMensagem(${i}, this)">Copiar</button>
+        <button class="copy-btn" style="background:var(--ochre); color:var(--ink);" onclick="abrirNoWhatsapp(${i})">Abrir no WhatsApp</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function limparSelecaoWhatsapp(){
+  pendingWhatsappClienteId = null;
+  renderMensagens();
+}
+
+function abrirNoWhatsapp(i){
+  let texto = MENSAGENS[i].texto;
+  const cliente = pendingWhatsappClienteId ? clientes.find(c=>c.id===pendingWhatsappClienteId) : null;
+  if(cliente){
+    texto = texto.replace(/\[Nome\]/g, cliente.nome);
+  }
+  const encoded = encodeURIComponent(texto);
+  if(cliente && cliente.contacto){
+    const numero = limparNumero(cliente.contacto);
+    window.open(`https://wa.me/${numero}?text=${encoded}`, '_blank');
+  } else {
+    // sem número associado — abre o WhatsApp para escolher o contacto manualmente
+    window.open(`https://wa.me/?text=${encoded}`, '_blank');
+  }
+}
+
+function copiarMensagem(i, btn){
+  const texto = MENSAGENS[i].texto;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(texto).then(()=>{
+      btn.textContent = 'Copiado ✓';
+      btn.classList.add('copied');
+      setTimeout(()=>{ btn.textContent='Copiar mensagem'; btn.classList.remove('copied'); }, 1500);
+    });
+  }
+}
+
+/* ===================== INIT ===================== */
+function confirmarLimpeza(){
+  if(!confirm('Tens a certeza? Isto apaga todos os contactos e orçamentos guardados.')) return;
+  clientes = [];
+  orcamentos = [];
+  nextClienteId = 1;
+  nextOrcId = 1;
+  salvarDados();
+  showToast('Dados apagados.');
+  renderHome();
+}
+
+carregarDados();
+
+/* ===================== INSTALAR APP (PWA) ===================== */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  });
+}
+
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const btn = document.getElementById('install-btn');
+  if(btn) btn.style.display = 'block';
+});
+
+function instalarApp(){
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(()=>{
+      deferredInstallPrompt = null;
+      const btn = document.getElementById('install-btn');
+      if(btn) btn.style.display = 'none';
+    });
+  } else {
+    showToast('Usa o menu do navegador: "Adicionar ao ecrã principal".');
+  }
+}
+
+window.addEventListener('appinstalled', ()=>{
+  const btn = document.getElementById('install-btn');
+  if(btn) btn.style.display = 'none';
+  showToast('App instalada!');
+});
+</script>
+</body>
+</html>
